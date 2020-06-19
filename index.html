@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>
+      Peenor;dinal Markup
+    </title>
+
+    <!-- styles -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- libraries -->
+    <script src = "ExpantaNum.min.js"></script>
+    <script src = "https://cdn.jsdelivr.net/npm/vue/dist/vue.js" defer></script>
+
+    <!-- classes -->
+    <script src = "scripts/save.js" defer></script>
+    <script src = "scripts/ordinal.js" defer></script>
+
+    <script src = "scripts/prestige.js" defer></script>
+    <script src = "scripts/purchase.js" defer></script>
+    <script src = "scripts/prod.js" defer></script>
+    <script src = "scripts/ui.js" defer></script>
+
+    <script src = "scripts/main.js" defer></script>
+  </head>
+  <body>
+    <div id = "preloader" style = "width: 100vw; height: 100vh; background-color: grey;">
+      lodeing
+    </div>
+
+
+
+    <div id = "app" style = "display: none;">
+      <div id = "header">
+        <h1>
+          <span v-html = "game.ord.stringWithBase"></span>
+        </h1>
+
+        <button onclick = "game.ord.n = game.ord.n.plus(1)">Increment</button>
+        <button onclick = "prestige()" v-if = "game.ord.n.gte(10)">Prestige for +{{ toNotation(game.ord.toNumberWithBase(100)) }} PP</button>
+      </div>
+
+      <br>
+      
+      <div id = "tabButtons">
+        <!-- they have to be in a single line because html TM -->
+        <button onclick = "game.tab = 0" :class="['tab', game.tab === 0 && 'tab noBottomBorder']">Options</button><button onclick = "game.tab = 1" :class="['tab', game.tab === 1 && 'tab noBottomBorder']" v-if = "game.prestiges.gte(1)">Prestige</button>
+      </div>
+      
+      <br>
+
+      <div id = "tab0" v-if = "game.tab === 0">
+        <button onclick = "save()">Save</button>
+        <button onclick = "wipeSave()">Wipe Save</button>
+      </div>
+
+      <div id = "tab1" v-if = "game.tab === 1">
+        You have {{ toNotation(game.prestigePoints) }} prestige points.
+
+        <br><br>
+
+        You have {{ toNotation(game.incrementors.amount) }} incrementors. +{{ toNotation(prod.inc()) }} number/second each. <button onclick="buyIncrementor()">Buy for {{ toNotation(game.incrementors.cost) }} PP</button>
+
+        <br><br>
+
+        <button onclick = "reduceBase()" v-if = "game.ord.b &gt; 3">Reduce the base by 1 for {{ toNotation(baseCost(game.baseReductions)) }} PP, and get a boost.</button>
+        <button v-if = "game.ord.b &lt;= 3">Maxed base reduction.</button>
+
+        <br><br>
+
+        <h2>Milestones</h2>
+        1 reduction: you die
+      </div>
+    </div>
+  </body>
+</html>

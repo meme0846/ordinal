@@ -1,0 +1,24 @@
+:root {
+  --tabAmount: 1;
+  --textColor: black;
+}
+
+.tab {
+  width: calc(100vw / var(--tabAmount));
+  height: 30px;
+  
+  text-align: center;
+  
+  border: 2px solid var(--textColor);
+  border-right: 0px solid var(--textColor);
+  border-radius: 5px 5px 0 0;
+  
+  display: inline-block;
+  position: relative;
+
+  outline: none;
+}
+
+body {
+  margin: 0;
+}
