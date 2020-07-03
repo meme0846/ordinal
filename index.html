@@ -61,7 +61,7 @@
 
         You have {{ toNotation(game.incrementors.amount) }} incrementors. +{{ toNotation(prod.inc()) }} number/second each.
         <button onclick = "buyIncrementor()">Buy for {{ toNotation(game.incrementors.cost) }} PP</button>
-        <button onclick = "maxIncrementors()">Buy max (buggy)</button>
+        <button onclick = "maxIncrementors()"  v-if = "milestones() >= 3">Buy max (buggy)</button>
 
         <br><br>
 

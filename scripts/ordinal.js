@@ -6,7 +6,7 @@ class Ordinal {
   }
 
 
-  string(expantaSyntax = false) {
+  get string() {
     const arr = [this.n]
 
     while (arr[arr.length - 1].gte(this.b)) {
@@ -19,29 +19,37 @@ class Ordinal {
 
     const formattedArr = []
 
-    if (!expantaSyntax) {  
-      for (const i in arr) 
-        if (arr[i].neq(0)) 
-          formattedArr.push(`${i === "0" ? "" : "&omega;"}${i > 1 ? `<sup>${i < this.b ? i : new Ordinal(i, this.b).string()}</sup>` : ""}${(arr[i].neq(1) || i === "0") ? arr[i].toFixed(1) : ""}`)
+    for (const i in arr) 
+      if (arr[i].neq(0)) 
+        formattedArr.push(`${i === "0" ? "" : "&omega;"}${i > 1 ? `<sup>${i < this.b ? i : new Ordinal(i, this.b).string()}</sup>` : ""}${(arr[i].neq(1) || i === "0") ? arr[i].toFixed(1) : ""}`)
 
-      const thing = formattedArr.reverse().join("+")
+    const thing = formattedArr.reverse().join("+")
 
-      return thing === "" ? 0 : thing
-    }
-
-    for (const i in arr) formattedArr.push(`.plus(nD(${arr[i]}).times(W.pow(${i < this.b ? i : new Ordinal(i, this.b).string(true)})))`)
-
-    return `new ExpantaNum(0)${formattedArr.join("")}`
+    return thing === "" ? 0 : thing
   }
 
   get stringWithBase() {
-    return `${this.string()}[${this.b}]`
+    return `${this.string}[${this.b}]`
   }
 
 
   toNumberWithBase(b) {
-    const strThing = this.string(true).split(`W`).join(`nD(${b})`)
+    const arr = [this.n]
 
-    return eval(strThing) // eslint-disable-line
+    while (arr[arr.length - 1].gte(this.b)) {
+      const last = arr[arr.length - 1]
+      const div = D.floor(last.div(this.b))
+
+      arr[arr.length - 1] = last.minus(div.times(this.b))
+      arr.push(div)
+    }
+
+    const array = []
+    for (const i in arr) array.push(arr[i].times(nD(b).pow(i < this.b ? i : new Ordinal(i, this.b).toNumberWithBase(b))))
+
+    let sum = nD(0)
+    for (const i in array) sum = sum.plus(array[i])
+
+    return sum
   }
 }
