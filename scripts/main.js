@@ -1,6 +1,6 @@
+"use strict"
 const D = ExpantaNum
 const nD = x => new D(x)
-
 
 
 // game class
@@ -22,6 +22,14 @@ class Game {
     // base prestige
     this.baseReductions = nD(0) // it decimal time, baybee
 
+    // scaling
+    this.scaling = [{
+      amount: nD(0),
+      cost: nD(10)
+    }, {
+      amount: nD(0),
+      cost: nD(100)
+    }]
 
 
     // timers
@@ -33,8 +41,6 @@ class Game {
 }
 
 
-
-
 // init
 let app
 let game
@@ -43,11 +49,12 @@ function init() {
   game = new Game()
 
   app = new Vue({
-    el: '#app',
+    el: "#app",
     data: {
-      game: game,
-      toNotation: toNotation,
+      game,
+      toNotation,
       baseCost: getBaseReductionCost,
+      milestones: milestonesCompleted,
 
       prod: {
         inc: getIncrementorProd
@@ -59,6 +66,8 @@ function init() {
   
   updateTabs()
 
+  setScalingCosts()
+  setIncrementorCost()
 
 
   // gameloop
@@ -72,7 +81,6 @@ function init() {
 
   // saving
   setInterval(save, 6969)
-
 
 
   // ui

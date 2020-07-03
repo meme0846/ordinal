@@ -1,3 +1,4 @@
+"use strict"
 const saveLoc = "peenorxd"
 
 function objectToDecimal(object) {
