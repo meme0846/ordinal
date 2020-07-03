@@ -1,6 +1,7 @@
 :root {
   --tabAmount: 1;
   --textColor: black;
+  --buttonBg: #e4e8eb;
 }
 
 .tab {
@@ -17,8 +18,27 @@
   position: relative;
 
   outline: none;
+
+  margin: 0;
 }
 
 body {
   margin: 0;
+}
+
+::-webkit-scrollbar {
+  width: 0px;
+}
+
+button {
+  background-color: var(--buttonBg);
+
+  border: 2px solid var(--textColor);
+  border-radius: 7px;
+}
+
+td {
+  width: 40%;
+  border-bottom: 1px solid var(--textColor);
+  border-right: 1px solid var(--textColor);
 }

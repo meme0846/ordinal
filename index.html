@@ -2,7 +2,7 @@
 <html>
   <head>
     <title>
-      Peenor;dinal Markup
+      Peenor;dinal Markup v0.2
     </title>
 
     <!-- styles -->
@@ -59,7 +59,9 @@
 
         <br><br>
 
-        You have {{ toNotation(game.incrementors.amount) }} incrementors. +{{ toNotation(prod.inc()) }} number/second each. <button onclick="buyIncrementor()">Buy for {{ toNotation(game.incrementors.cost) }} PP</button>
+        You have {{ toNotation(game.incrementors.amount) }} incrementors. +{{ toNotation(prod.inc()) }} number/second each.
+        <button onclick = "buyIncrementor()">Buy for {{ toNotation(game.incrementors.cost) }} PP</button>
+        <button onclick = "maxIncrementors()">Buy max (buggy)</button>
 
         <br><br>
 
@@ -68,8 +70,53 @@
 
         <br><br>
 
-        <h2>Milestones</h2>
-        1 reduction: you die
+        <table>
+          <tr>
+            <th>Milestones</th>
+            <th v-if = "milestones() >= 2">Scaling</th>
+          </tr>
+          <tr>
+            <td>
+              <span v-if = "milestones() == 0">No milestones yet! Check back with a lower base.</span>
+              <span v-if = "milestones() >= 1">2 reductions: Each bought incrementor increases incrementor power by 10%, additively</span>
+            </td>
+            <td v-if = "milestones() >= 2">
+              <button onclick = "buyScalingReduction(0)">
+                Reduce incrementor scaling by 10%, multiplicatively, for {{ toNotation(game.scaling[0].cost) }} PP
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 2">
+              4 reductions: You can buy cost scaling reduction upgrades
+            </td>
+            <td v-if = "milestones() >= 6">
+              <button onclick = "buyScalingReduction(1)">
+                Reduce 1st scaling cost scaling by 10%, multiplicatively, for {{ toNotation(game.scaling[1].cost) }} PP
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 3">
+              5 reductions: Unlock buy max incrementors
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 4">
+              7 reductions: Each reduction adds 1% to first milestones's power
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 5">
+              8 reductions: Start with 1 incrementor
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 6">
+              10 reductions: Unlock a new scaling upgrade
+            </td>
+          </tr>
+        </table>
       </div>
     </div>
   </body>
