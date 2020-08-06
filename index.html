@@ -69,7 +69,7 @@
         <button onclick = "game.options.disableMaxWhenReductable = !game.options.disableMaxWhenReductable" v-if = "game.baseReductions.gt(5)">
           Disable buying bulk incrementors when you can reduce the base<span v-if = "calcAutoPower(true).gt(0)"> (Also disables incrementor automator)</span>: {{ options.yn(game.options.disableMaxWhenReductable) }}
 				</button><br>
-				<button onclick = "game.options.hideMicrotransactions = !game.options.hideMicrotransactions; updateTabs()" v-if = "game.baseReductions.gt(0)">
+				<button onclick = "game.options.hideMicrotransactions = !game.options.hideMicrotransactions; updateTabs()" v-if = "game.baseReductions.gt(10)">
 					Hide microtransactions: {{ options.yn(game.options.hideMicrotransactions) }}
 				</button>
       </div>
