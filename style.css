@@ -3,6 +3,8 @@
   --textColor: black;
   --buttonBg: #e4e8eb;
 	--darkButtonBg: #c0c4c8;
+	--darkerButtonBg: #b0b4b8;
+	--weNeedToGoDarker: #606462;
 	--bgColour: #f0f0f0;
 
 	--wuantumTheme: #3f70be;
@@ -14,7 +16,7 @@
 }
 
 .tab {
-  width: calc(100vw / var(--tabAmount));
+  width: calc(100% / var(--tabAmount));
   height: 30px;
   
   text-align: center;
@@ -38,8 +40,21 @@ body {
 }
 
 ::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+	height: 0px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bgColour); 
+}
+ 
+::-webkit-scrollbar-thumb {
+	background: var(--darkButtonBg);
+	
+	border-radius: 100px;
+}
+ 
+::-webkit-scrollbar-thumb:active {
+	background: var(--weNeedToGoDarker);
 }
 
 button {
