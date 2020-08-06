@@ -5,7 +5,7 @@ function prestige() {
 
   game.ord = new Ordinal(nD(0), 100 - game.baseReductions)
 
-  game.mtx.boostEnabled = doubleIncs
+  game.mtx.doubleIncs = false
 
   updateTabs()
 }
@@ -63,7 +63,7 @@ function reduceBase(idk = nD(1)) {
     game.multiplierPoints = nD(0)
     game.mpCost = nD(1e10)
 
-		game.mtx.boostEnabled = doubleIncs
+		game.mtx.doubleIncs = false
 
     setScalingCosts()
     setIncrementorCost()
@@ -137,7 +137,7 @@ function wuantum(idkwhattoname = true) {
   game.multiplierPower = nD(0)
   game.mpCost = nD(1e10)
 
-	game.mtx.boostEnabled = false
+  game.mtx.doubleIncs = false
 
   setScalingCosts()
 	setIncrementorCost()
