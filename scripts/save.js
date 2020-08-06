@@ -1,5 +1,5 @@
 "use strict"
-const saveLoc = "peenorxd"
+const saveLoc = "peenordinal-wuantum"
 
 function objectToDecimal(object) {
   for (let i in object) {
@@ -32,6 +32,7 @@ function merge(base, source) {
 
 
 function isDecimal(x) {
+	if (x == undefined) return false
   if (x.array != undefined && x.plus != undefined) {
       return true;
   } else {

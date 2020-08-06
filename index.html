@@ -2,17 +2,19 @@
 <html>
   <head>
     <title>
-      Peenor;dinal Markup v0.2
+      Peenor;dinal Markup v0.3
     </title>
 
     <!-- styles -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
 
     <!-- libraries -->
     <script src = "ExpantaNum.min.js"></script>
     <script src = "https://cdn.jsdelivr.net/npm/vue/dist/vue.js" defer></script>
 
-    <!-- classes -->
+    <!-- classes n stuff -->
+    <script src = "scripts/shorthand.js" defer></script>
     <script src = "scripts/save.js" defer></script>
     <script src = "scripts/ordinal.js" defer></script>
 
@@ -20,7 +22,12 @@
     <script src = "scripts/purchase.js" defer></script>
     <script src = "scripts/prod.js" defer></script>
     <script src = "scripts/ui.js" defer></script>
+    <script src = "scripts/microtransactions.js" defer></script>
+    <script src = "scripts/automation.js" defer></script>
+    <script src = "scripts/multiplier.js" defer></script>
+    <script src = "scripts/wuantumupgs.js" defer></script>
 
+    <script src = "scripts/game.js" defer></script>
     <script src = "scripts/main.js" defer></script>
   </head>
   <body>
@@ -31,58 +38,76 @@
 
 
     <div id = "app" style = "display: none;">
-      <div id = "header">
+      <div id = "header" style = "margin-left: 5px;">
         <h1>
           <span v-html = "game.ord.stringWithBase"></span>
         </h1>
+        <h3 v-if = "game.baseReductions.gte(10)">Base: {{ toNotation(new ExpantaNum(game.ord.b)) }} ({{ toNotation(game.baseReductions) }} base reductions)</h3>
 
         <button onclick = "game.ord.n = game.ord.n.plus(1)">Increment</button>
-        <button onclick = "prestige()" v-if = "game.ord.n.gte(10)">Prestige for +{{ toNotation(game.ord.toNumberWithBase(100)) }} PP</button>
+				<button onclick = "prestige()" v-if = "game.ord.n.gte(10)">Prestige for +{{ toNotation(ppGain(), 1, 3) }} PP</button>
+				<button onclick = "wuantum()" v-if = "game.ord.n.gte('1e968000')">Wuantum for +{{ toNotation(wuarkGain()) }} wuarks</button>
       </div>
+
+      <h1 id="reee"></h1>
 
       <br>
       
       <div id = "tabButtons">
-        <!-- they have to be in a single line because html TM -->
-        <button onclick = "game.tab = 0" :class="['tab', game.tab === 0 && 'tab noBottomBorder']">Options</button><button onclick = "game.tab = 1" :class="['tab', game.tab === 1 && 'tab noBottomBorder']" v-if = "game.prestiges.gte(1)">Prestige</button>
+        <!-- they have to be in a single line because html is fun and good and great -->
+        <button onclick = "game.tab = 0" class = "tab">Options</button><button onclick = "game.tab = 1" class = "tab" v-if = "game.prestiges.gte(1) || game.wuantums.gt(0)">Prestige</button><button onclick = "game.tab = 2"  class = "tab" v-if = "(game.baseReductions.gte(10) || game.wuantums.gt(0)) && !game.options.hideMicrotransactions">Microtransactions</button><button onclick = "game.tab = 3"  class="tab" v-if = "calcAutoPower(true).gt(0) || game.wuantums.gt(0)">Automation</button><button onclick = "game.tab = 4"  class = "tab" v-if = "milestones() >= 11 || game.wuantums.gt(0)">Multipliers</button><button onclick = "game.tab = 5"  class = "tab wtmUpgBought" v-if = "game.wuantums.gt(0)">Wuantum</button>
       </div>
       
       <br>
 
-      <div id = "tab0" v-if = "game.tab === 0">
+      <div id = "tab0" v-if = "game.tab === 0" style = "margin-left: 5px;">
         <button onclick = "save()">Save</button>
         <button onclick = "wipeSave()">Wipe Save</button>
+
+        <br>
+
+        <button onclick = "game.options.disableMaxWhenReductable = !game.options.disableMaxWhenReductable" v-if = "game.baseReductions.gt(5)">
+          Disable buying bulk incrementors when you can reduce the base<span v-if = "calcAutoPower(true).gt(0)"> (Also disables incrementor automator)</span>: {{ options.yn(game.options.disableMaxWhenReductable) }}
+				</button><br>
+				<button onclick = "game.options.hideMicrotransactions = !game.options.hideMicrotransactions; updateTabs()" v-if = "game.baseReductions.gt(0)">
+					Hide microtransactions: {{ options.yn(game.options.hideMicrotransactions) }}
+				</button>
       </div>
 
-      <div id = "tab1" v-if = "game.tab === 1">
-        You have {{ toNotation(game.prestigePoints) }} prestige points.
+      <div id = "tab1" v-if = "game.tab === 1" style = "margin-left: 5px;">
+        You have {{ toNotation(game.prestigePoints, 1, 3) }} prestige points.
 
         <br><br>
 
-        You have {{ toNotation(game.incrementors.amount) }} incrementors. +{{ toNotation(prod.inc()) }} number/second each.
+        You have {{ toNotation(game.incrementors.amount) }}{{ calcFreeIncrementors().gt(0) ? "+" + toNotation(calcFreeIncrementors()) : "" }} incrementors. <span v-html="oo(prod.inc(), game.ord.b)"></span> number/second each (<span v-html="oo(prod.inc(true), game.ord.b)"></span> total).<br>
+
         <button onclick = "buyIncrementor()">Buy for {{ toNotation(game.incrementors.cost) }} PP</button>
-        <button onclick = "maxIncrementors()"  v-if = "milestones() >= 3">Buy max (buggy)</button>
+        <button onclick = "maxIncrementors(1e6)"  v-if = "milestones() >= 3">Buy 1.00e6</button>
 
         <br><br>
 
-        <button onclick = "reduceBase()" v-if = "game.ord.b &gt; 3">Reduce the base by 1 for {{ toNotation(baseCost(game.baseReductions)) }} PP, and get a boost.</button>
+        <button onclick = "reduceBase()" v-if = "game.ord.b &gt; 3">
+          Reduce the base by 1 for {{ toNotation(baseCost(game.baseReductions), 1, 3) }} PP, and get a x{{ toNotation(calcReductionBoost(), 2) }} boost.<br>
+          {{ ExpantaNum.max(0, ExpantaNum.min(game.prestigePoints.plus(ppGain()).div(baseCost(game.baseReductions)).times(100), 100)).toFixed(2) }}% to next reduction.
+        </button>
         <button v-if = "game.ord.b &lt;= 3">Maxed base reduction.</button>
 
         <br><br>
 
-        <table>
+        <table class = "funniBorder">
           <tr>
             <th>Milestones</th>
-            <th v-if = "milestones() >= 2">Scaling</th>
+            <th v-if = "milestones() >= 2">Scaling (Cap: {{ toNotation(calcScalingCap(), 5) }})</th>
           </tr>
           <tr>
             <td>
-              <span v-if = "milestones() == 0">No milestones yet! Check back with a lower base.</span>
               <span v-if = "milestones() >= 1">2 reductions: Each bought incrementor increases incrementor power by 10%, additively</span>
+              <span v-else>No milestones yet! Come back with a lower base.</span>
             </td>
             <td v-if = "milestones() >= 2">
               <button onclick = "buyScalingReduction(0)">
-                Reduce incrementor scaling by 10%, multiplicatively, for {{ toNotation(game.scaling[0].cost) }} PP
+                Reduce incrementor scaling by 10%, multiplicatively, for {{ toNotation(game.scaling[0].cost) }} PP<br>
+                Currently: x{{ toNotation(scalingify(0), 3) }} scaling
               </button>
             </td>
           </tr>
@@ -92,32 +117,359 @@
             </td>
             <td v-if = "milestones() >= 6">
               <button onclick = "buyScalingReduction(1)">
-                Reduce 1st scaling cost scaling by 10%, multiplicatively, for {{ toNotation(game.scaling[1].cost) }} PP
+                Reduce 1st scaling cost scaling by 10%, multiplicatively, for {{ toNotation(game.scaling[1].cost) }} PP<br>
+                Currently: ^{{ toNotation(scalingify(1), 3) }} scaling
               </button>
             </td>
           </tr>
           <tr>
             <td v-if = "milestones() >= 3">
-              5 reductions: Unlock buy max incrementors
+              5 reductions: Unlock buy 1.00e6 incrementors
+            </td>
+            <td v-if = "milestones() >= 7">
+              <button onclick = "buyScalingReduction(2)">
+                Reduce 2nd scaling cost scaling by 20%, multiplicatively, for {{ toNotation(game.scaling[2].cost) }} PP<br>
+                Currently: ^{{ toNotation(scalingify(2), 3) }} scaling
+              </button>
             </td>
           </tr>
           <tr>
             <td v-if = "milestones() >= 4">
               7 reductions: Each reduction adds 1% to first milestones's power
             </td>
+            <td v-if = "milestones() >= 9">
+              <button onclick = "buyScalingReduction(3)">
+                Reduce 3nd scaling cost scaling by 30%, multiplicatively, for {{ toNotation(game.scaling[3].cost) }} PP<br>
+                Currently: ^{{ toNotation(scalingify(3), 3) }} scaling
+              </button>
+            </td>
           </tr>
           <tr>
             <td v-if = "milestones() >= 5">
               8 reductions: Start with 1 incrementor
             </td>
+            <th v-if = "milestones() >= 10">
+              Multiplier Points
+            </th>
           </tr>
           <tr>
             <td v-if = "milestones() >= 6">
               10 reductions: Unlock a new scaling upgrade
             </td>
+            <td v-if = "milestones() >= 10">
+              You have {{ toNotation(game.multiplierPoints) }}<span v-if = "calcFreeMultPts().gt(0)">+{{ toNotation(calcFreeMultPts()) }}</span> multiplier points, each giving a x{{ toNotation(calcMultPointBoost(), 2) }} multiplier, 
+              translated to a x{{ toNotation(prod.mp()) }} production multiplier.
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 7">
+              13 reductions: Unlock another new scaling upgrade, and divide all scaling costs based on reductions (x ^ 2 * 5)
+            </td>
+            <td v-if = "milestones() >= 10">
+              <button onclick = "buyMultiplierPoint()">
+                Buy multipier point for {{ toNotation(game.mpCost) }} prestige points
+              </button>
+              <button onclick = "maxMultiplierPoints(1000)">
+                Buy 1000
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 8">
+              14 reductions: Get a production boost based on product of scaling upgrades
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 9">
+              16 reductions: Unlock the final scaling upgrade
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 10">
+              18 reductions: Unlock multiplier points
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 11">
+              21 reductions: Unlock multipliers
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 12">
+              25 reductions: Unlock the scaling multiplier
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 13">
+              28 reductions: Get a production multiplier based on product of multiplier levels
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 14">
+              30 reductions: You can autobuy scalings and Synergy has an additional effect past level 50
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 15">
+              44 reductions: Unlock the <sup>S</sup>Wisdom multiplier
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 16">
+              57 reductions: Get free multiplier points based on log 100 of bought incrementors
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 17">
+              68 reductions: Unlock the multiplier point automator and an EXP gain multiplier based on prestige points
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 18">
+              74 reductions: 4th scaling affects multiplier points at a reduced rate
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 19">
+              81 reductions: Synergy multiplier point/base reduction effect softcap is much weaker
+            </td>
+          </tr>
+          <tr>
+            <td v-if = "milestones() >= 20">
+              90 reductions: Each multiplier reset gives 4 free Synergy levels
+            </td>
           </tr>
         </table>
       </div>
+
+      <div id = "tab2" v-if = "game.tab === 2" style = "margin-left: 5px;">
+        Microtransactions are not nessecary to progress.<br>
+        You have ${{ game.mtx.money.toFixed(2) }}.
+        <table>
+          <tr>
+            <td>
+              <button class = "microtransaction" onclick = "mtxUpg(0)">
+                Double production for 120 seconds. {{ (game.mtx.doublerTicks / 1000).toFixed(2) }} seconds remaining.<br><br>Cost: $25.00
+              </button>
+            </td>
+            <td>
+              <button class = "microtransaction" onclick = "mtxUpg(1)">
+                Instantly gain a minute of progress<br><br>Cost: $60.00
+              </button>
+            </td>
+            <td>
+              <button class = "microtransaction" onclick = "mtxUpg(2)">
+                Reduce the base by 5% if your base is higher than 60 for the rest of the prestige, otherwise, make effective incrementors ^1.025 for the rest of the prestige<br><br>Cost: $1000.00
+              </button>
+            </td>
+          </tr>
+          <tr>
+            <td style = "border: 0px solid black"></td><td style = "border: 0px solid black">
+							<button style = "border-radius:50%;width:150px;height:150px;outline:
+							none;" onclick = "game.mtx.money++">
+                Get $1.00
+              </button>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div id = "tab3" v-if = "game.tab === 3" style = "margin-left: 5px;">
+        You have {{ toNotation(game.autoPower) }} Automation Power. Next at {{ toNotation(nextAutoPower()) }} base reductions.
+
+        <br><br>
+
+        <div class = "automator">
+          Incrementor Automator<br>
+          Charge: {{ toNotation(game.automators.incrementor.charge) }} / {{ toNotation(game.automators.incrementor.triggerPoint) }}<br>
+          <button onclick = "game.automators.incrementor.removePoints(1)">
+            -1
+          </button>
+          {{ toNotation(game.automators.incrementor.points) }} Automation Power
+          <button onclick = "giveAutomationPower(game.automators.incrementor, 1)">
+            +1
+          </button><br>
+          Buys up to {{ toNotation(game.automators.incrementor.perSec) }} incrementors per second
+        </div>
+
+        <div class = "automator" v-if = "milestones() >= 14 || game.wuantums.gt(0)">
+          Scaling Automator<br>
+          Charge: {{ toNotation(game.automators.scaling.charge) }} / {{ toNotation(game.automators.scaling.triggerPoint) }}<br>
+          <button onclick = "game.automators.scaling.removePoints(1)">
+            -1
+          </button>
+          {{ toNotation(game.automators.scaling.points) }} Automation Power
+          <button onclick = "giveAutomationPower(game.automators.scaling, 1)">
+            +1
+          </button><br>
+          Buys up to {{ toNotation(game.automators.scaling.perSec) }} of each scaling per second
+        </div>
+
+				<div class = "automator" v-if = "milestones() >= 17 || game.wuantums.gt(0)">
+					Multiplier Point Automator<br>
+					Charge: {{ toNotation(game.automators.multPts.charge) }} / {{ toNotation(game.automators.multPts.triggerPoint) }}<br>
+					<button onclick = "game.automators.multPts.removePoints(1)">
+						-1
+					</button>
+					{{ toNotation(game.automators.multPts.points) }} Automation Power
+					<button onclick = "giveAutomationPower(game.automators.multPts, 1)">
+						+1
+					</button><br>
+					Buys up to {{ toNotation(game.automators.multPts.perSec) }} multiplier points per second
+				</div>
+
+				<div class = "automator" v-if = "game.wuantums.gt(0)">
+					Base Reduction Automator<br>
+					Charge: {{ toNotation(game.automators.reduction.charge) }} / {{ toNotation(game.automators.reduction.triggerPoint) }}<br>
+					<button onclick = "game.automators.reduction.removePoints(1)">
+						-1
+					</button>
+					{{ toNotation(game.automators.reduction.points) }} Automation Power
+					<button onclick = "giveAutomationPower(game.automators.reduction, 1)">
+						+1
+					</button><br>
+					Reducing up to {{ toNotation(game.automators.reduction.perSec) }} times per second
+				</div>
+
+				<div class = "automator" v-if = "game.wuantums.gt(3)">
+					EXP Distributor<br>
+					Charge: {{ toNotation(game.automators.splitexp.charge) }} / {{ toNotation(game.automators.splitexp.triggerPoint) }}<br>
+					<button onclick = "game.automators.splitexp.removePoints(1)">
+						-1
+					</button>
+					{{ toNotation(game.automators.splitexp.points) }} Automation Power
+					<button onclick = "giveAutomationPower(game.automators.splitexp, 1)">
+						+1
+					</button><br>
+					All multipliers get EXP based on unassigned multiplier power (increases with automation charge gain)
+				</div>
+      </div>
+
+      <div id = "tab4" v-if = "game.tab === 4" style = "margin-left: 5px;">
+        You have {{ toNotation(game.multiplierPower) }} multiplier power, based on your highest multiplier points.<br>
+				Each allocated after 1 multiplies EXP production by {{ toNotation(calculateMultPowerSynergy(), 2) }}.<br>
+				You have {{ toNotation(calculateTotalMultLevel(), 1, 2, 1e6) }} total multiplier levels.
+
+        <br><br><br>
+
+        <table id = "multTable">
+          <tr>
+            <td>
+              Synergy Level {{ toNotation(game.multipliers.synergy.blevel) }}<span v-if = "freeSynergyLevels().gt(0)">+{{ toNotation(freeSynergyLevels()) }}</span><br>
+              +1% multiplier point and base reduction boost <span v-if = "game.multipliers.synergy.level.gte(calculateSynergyCapDelay().times(50))">(softcapped)</span><br>
+              <span v-if = "milestones() >= 14">Add 0.01 to multiplier power synergy past level 50 <span v-if = "game.multipliers.synergy.level.gt(calculateSynergyCapDelay().times(150))">(softcapped)</span><br></span>
+              {{ toNotation(game.multipliers.synergy.exp) }} / {{ toNotation(game.multipliers.synergy.cost) }} EXP<br><br>
+
+              <button onclick = "game.multipliers.synergy.removePoints(1)">-1</button>
+              {{ toNotation(game.multipliers.synergy.points) }} allocated power.
+              <button onclick = "game.multipliers.synergy.addPoints(1)">+1</button><br>
+
+              <button onclick = "game.multipliers.synergy.removePoints(game.multipliers.synergy.points.ceil())">-100%</button>
+              <button onclick = "game.multipliers.synergy.removePoints(game.multipliers.synergy.points.div(10).ceil())">-10%</button>
+              <button onclick = "game.multipliers.synergy.addPoints(game.multiplierPower.div(10).ceil())">+10%</button>
+              <button onclick = "game.multipliers.synergy.addPoints(game.multiplierPower.ceil())">+100%</button>
+            </td>
+            <td v-if = "milestones() >= 12 || game.wuantums.gt(0)">
+              Scaling Level {{ toNotation(game.multipliers.scaling.blevel) }}<span v-if = "freeScalingLevels().gt(0)">+{{ toNotation(freeScalingLevels()) }}</span><br>
+              +0.06 to exponents in 14 reduction milestone formula<br>
+							<span v-if = "game.multipliers.scaling.level.gte(100)">Levels 100-200 reduce scaling cap by 0.9%<br></span>
+							<span v-if = "game.multipliers.scaling.level.gte(2000)">Past level 2000, make PP gain scale better (^(level-2000)^0.3*0.025+1)<br></span>
+              {{ toNotation(game.multipliers.scaling.exp) }} / {{ toNotation(game.multipliers.scaling.cost) }} EXP<br><br>
+
+              <button onclick = "game.multipliers.scaling.removePoints(1)">-1</button>
+              {{ toNotation(game.multipliers.scaling.points) }} allocated power.
+              <button onclick = "game.multipliers.scaling.addPoints(1)">+1</button><br>
+
+              <button onclick = "game.multipliers.scaling.removePoints(game.multipliers.scaling.points.ceil())">-100%</button>
+              <button onclick = "game.multipliers.scaling.removePoints(game.multipliers.scaling.points.div(10).ceil())">-10%</button>
+              <button onclick = "game.multipliers.scaling.addPoints(game.multiplierPower.div(10).ceil())">+10%</button>
+              <button onclick = "game.multipliers.scaling.addPoints(game.multiplierPower.ceil())">+100%</button>
+            </td>
+            <td v-if = "milestones() >= 15 || game.wuantums.gt(0)">
+              <sup>S</sup>Wisdom Level {{ toNotation(game.multipliers.swisdom.blevel) }}<br>
+              Get free incrementors based on sum of multiplier levels ((1+level*0.02)^sum-1)<br>
+							Gain 2x more automator charge per level<br>
+							<span v-if = "game.multipliers.swisdom.level.gte(60)">Past level 60, raise production to a power based on base reductions (^1+0.01*level^0.35*(reductions-74)^0.5)</span><br>
+              {{ toNotation(game.multipliers.swisdom.exp) }} / {{ toNotation(game.multipliers.swisdom.cost) }} EXP<br><br>
+
+              <button onclick = "game.multipliers.swisdom.removePoints(1)">-1</button>
+              {{ toNotation(game.multipliers.swisdom.points) }} allocated power.
+              <button onclick = "game.multipliers.swisdom.addPoints(1)">+1</button><br>
+
+              <button onclick = "game.multipliers.swisdom.removePoints(game.multipliers.swisdom.points.ceil())">-100%</button>
+              <button onclick = "game.multipliers.swisdom.removePoints(game.multipliers.swisdom.points.div(10).ceil())">-10%</button>
+              <button onclick = "game.multipliers.swisdom.addPoints(game.multiplierPower.div(10).ceil())">+10%</button>
+              <button onclick = "game.multipliers.swisdom.addPoints(game.multiplierPower.ceil())">+100%</button>
+            </td>
+          </tr>
+				</table>
+
+				<br><br>
+				
+				<button v-if = "game.baseReductions.gte(70)" onclick = "resetMults()">
+					Reset multipliers but make synergy softcap start 25% later.<br><br>
+
+					Requires {{ toNotation(calcMultResetCost(), 1, 2, 1e6) }} total multiplier levels
+				</button>
+
+				<div v-if = "game.multiplierReset.times.gte(1)">
+					You have reset multipliers {{ toNotation(game.multiplierReset.times) }} times, translating to synergy softcapping {{ toNotation(ExpantaNum.pow(1.25, game.multiplierReset.times).minus(1).times(100)) }}% later.<br>
+					You are also getting {{ toNotation(reverseArithmeticThing(game.multiplierReset.times)) }} rewards, cycling through these 4 bonuses.<br>
+					Next reward at {{ toNotation(reverseArithmeticThing(game.multiplierReset.times).plus(1).times(reverseArithmeticThing(game.multiplierReset.times).plus(2)).times(0.5)) }} resets.<br><br>
+
+					<div class = "automator">
+						Get free Scaling levels based on PP. ({{ toNotation(calculateRewardAmount(0)) }})
+					</div><br>
+					<div class = "automator">
+						+5% effective multipliers/level. ({{ toNotation(calculateRewardAmount(1)) }})
+					</div><br>
+					<div class = "automator">
+						2 reduction milestone is raised to a power. ({{ toNotation(calculateRewardAmount(2)) }})
+					</div><br>
+					<div class = "automator">
+						Multiply EXP gain based on ordinal. ({{ toNotation(calculateRewardAmount(3)) }})
+					</div>
+				</div>
+			</div>
+			
+			<div id = "tab5" v-if = "game.tab === 5" style = "margin-left: 5px;">
+				You have {{ toNotation(game.wuarks) }} wuarks and {{  toNotation(game.bankedExp) }} banked EXP.<br><br>
+
+				<button onclick="respecWuantumUpgrades()">
+					Respec and reset the Wuantum
+				</button>
+
+				<table id = "wuantumUpgs">
+					<tr>
+						<td
+							v-for = "upg in wuantumUpgData"
+							@click = "game.wuantumUpgrades.upgrades[upg.id].buy()"
+							:class = " { wtmUpgBuyable: game.wuantumUpgrades.upgrades[upg.id].canBuy, wtmUpgBought: game.wuantumUpgrades.upgrades[upg.id].have } "
+						>
+							{{ upg.desc }}<br><br>{{ toNotation(upg.cost.times(game.wuantumUpgrades.factor)) }} wuarks (x{{ toNotation(upg.factor) }})
+						</td>
+					</tr>
+				</table>
+
+				<!--
+				<table id = "wuantumUpgs">
+					<tr>
+						<td :class = "{ wtmUpgBuyable: game.wuantumUpgrades.upgrades[11].canBuy && !game.wuantumUpgrades.upgrades[11].have, wtmUpgBought: game.wuantumUpgrades.upgrades[11].have }">
+							consume
+						</td>
+						<td class = "wtmUpgBought">
+							the
+						</td>
+						<td>
+							cum
+						</td>
+						<td>
+							chalice
+						</td>
+					</tr>
+				</table>
+				-->
+			</div>
     </div>
   </body>
 </html>
