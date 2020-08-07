@@ -72,6 +72,12 @@
 				<button onclick = "game.options.hideMicrotransactions = !game.options.hideMicrotransactions; updateTabs()" v-if = "game.baseReductions.gt(10)">
 					Hide microtransactions: {{ options.yn(game.options.hideMicrotransactions) }}
 				</button>
+
+				<br><br>
+
+				<h2>Credit and notes</h2>
+				Credit to <a href = "https://patcailmemer.github.io/Ordinal-Markup/">Ordinal Markup</a> for ideas for ordinal<span v-if = "game.prestiges.gt(0)">, base reductions, and PP formula</span><br>
+				Thanks to <a href = "https://yhvr.gitlab.io/">Yhvr</a> and Fishydids for motivating me to work on the game
       </div>
 
       <div id = "tab1" v-if = "game.tab === 1" style = "margin-left: 5px;">
