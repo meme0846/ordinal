@@ -3,7 +3,9 @@
   <head>
     <title>
       Peenor;dinal Markup v0.3
-    </title>
+		</title>
+		
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 
     <!-- styles -->
     <link href="https://fonts.googleapis.com/css2?family=Inter&display=swap" rel="stylesheet">
@@ -88,7 +90,7 @@
         You have {{ toNotation(game.incrementors.amount) }}{{ calcFreeIncrementors().gt(0) ? "+" + toNotation(calcFreeIncrementors()) : "" }} incrementors. <span v-html="oo(prod.inc(), game.ord.b)"></span> number/second each (<span v-html="oo(prod.inc(true), game.ord.b)"></span> total).<br>
 
         <button onclick = "buyIncrementor()">Buy for {{ toNotation(game.incrementors.cost) }} PP</button>
-        <button onclick = "maxIncrementors(1e6)"  v-if = "milestones() >= 3">Buy 1.00e6</button>
+        <button onclick = "maxIncrementors()"  v-if = "milestones() >= 3">Buy Max</button>
 
         <br><br>
 
@@ -130,7 +132,7 @@
           </tr>
           <tr>
             <td v-if = "milestones() >= 3">
-              5 reductions: Unlock buy 1.00e6 incrementors
+              5 reductions: Unlock buy max incrementors
             </td>
             <td v-if = "milestones() >= 7">
               <button onclick = "buyScalingReduction(2)">
