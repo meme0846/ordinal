@@ -64,7 +64,7 @@
 
       <div id = "tab0" v-if = "game.tab === 0" style = "margin-left: 5px;">
         <button onclick = "save()">Save</button>
-        <button onclick = "wipeSave()">Wipe Save</button>
+        <button onclick = "if (confirm('hey nerd are you sure you want to nuke your game')) wipeSave()">Wipe Save</button>
 
         <br>
 
